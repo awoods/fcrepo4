@@ -47,6 +47,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Node;
@@ -387,6 +388,34 @@ public class FedoraVersionsIT extends AbstractResourceIT {
         // removing a non-existent version should 404
         final HttpDelete delete = new HttpDelete(serverAddress + objId + "/fcr:versions/" + versionLabel);
         assertEquals(BAD_REQUEST.getStatusCode(), getStatus(delete));
+    }
+
+    @Test
+    public void testIndexResponseContentTypes() throws Exception {
+        final String pid = getRandomUniquePid();
+        createObject(pid);
+
+        for (final String type : RDFMediaType.POSSIBLE_RDF_RESPONSE_VARIANTS_STRING) {
+            final HttpGet method =
+                    new HttpGet(serverAddress + pid + "/fcr:versions");
+
+            method.addHeader("Accept", type);
+            assertEquals(type, getContentType(method));
+        }
+    }
+
+    @Test
+    public void testGetVersionResponseContentTypes() throws Exception {
+        final String pid = getRandomUniquePid();
+        createObject(pid);
+
+        for (final String type : RDFMediaType.POSSIBLE_RDF_RESPONSE_VARIANTS_STRING) {
+            final HttpGet method =
+                    new HttpGet(serverAddress + "jcr:system/jcr:versionStorage/" + pid);
+
+            method.addHeader("Accept", type);
+            assertEquals(type, getContentType(method));
+        }
     }
 
     private void testDatastreamContentUpdatesCreateNewVersions(final String objName, final String dsName) throws IOException {

@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -141,7 +142,7 @@ public class FedoraLocksIT extends AbstractResourceIT implements FedoraJcrTypes 
         getLockToken(lockObject(pid, true));
         GraphStore lockTriples = getLockProperties(pid, null);
         Assert.assertTrue("Lock should be listed as deep!",
-                lockTriples.contains(ANY, lockURI, createURI(IS_DEEP.getURI()), trueLiteral));
+                          lockTriples.contains(ANY, lockURI, createURI(IS_DEEP.getURI()), trueLiteral));
         assertUnlockWithoutToken(pid);
 
         getLockToken(lockObject(pid, false));
@@ -194,7 +195,7 @@ public class FedoraLocksIT extends AbstractResourceIT implements FedoraJcrTypes 
 
         final String lockToken = getLockToken(lockObject(pid));
         Assert.assertEquals("May not take out a second lock on a locked node!",
-                CONFLICT.getStatusCode(), lockObject(pid).getStatusLine().getStatusCode());
+                            CONFLICT.getStatusCode(), lockObject(pid).getStatusLine().getStatusCode());
         assertUnlockWithToken(pid, lockToken);
     }
 
@@ -267,7 +268,7 @@ public class FedoraLocksIT extends AbstractResourceIT implements FedoraJcrTypes 
     public void testLockMissingNode() throws IOException {
         final String pid = getRandomUniquePid();
         Assert.assertEquals("Must get a NOT_FOUND response when locking a path at which no node exists.",
-                NOT_FOUND.getStatusCode(), lockObject(pid).getStatusLine().getStatusCode());
+                            NOT_FOUND.getStatusCode(), lockObject(pid).getStatusLine().getStatusCode());
     }
 
     @Test
@@ -301,6 +302,20 @@ public class FedoraLocksIT extends AbstractResourceIT implements FedoraJcrTypes 
         Assert.assertTrue("HAS_LOCK assertion should be in the child object's RDF.",
                 store.contains(Node.ANY, childNodeURI, HAS_LOCK.asNode(), lockURI));
         assertUnlockWithToken(pid, lockToken);
+    }
+    
+    @Test
+    public void testResponseContentTypes() throws Exception {
+        final String pid = getRandomUniquePid();
+        createObject(pid);
+
+        for (final String type : RDFMediaType.POSSIBLE_RDF_RESPONSE_VARIANTS_STRING) {
+            final HttpGet method =
+                    new HttpGet(serverAddress + pid + "/fcr:lock");
+
+            method.addHeader("Accept", type);
+            Assert.assertEquals(type, getContentType(method));
+        }
     }
 
     /**

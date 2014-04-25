@@ -141,7 +141,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContent(new ByteArrayInputStream(
                 ("INSERT { <> <http://purl.org/dc/elements/1.1/title> \"this is a title\" } WHERE {}")
-                .getBytes()));
+                        .getBytes()));
         method.setEntity(entity);
         final HttpResponse response = client.execute(method);
         final String content = EntityUtils.toString(response.getEntity());
@@ -202,14 +202,14 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String content = EntityUtils.toString(response.getEntity());
         final int status = response.getStatusLine().getStatusCode();
         assertEquals("Didn't get a CREATED response! Got content:\n" + content,
-                CREATED.getStatusCode(), status);
+                     CREATED.getStatusCode(), status);
         assertTrue("Response wasn't a PID", compile("[a-z]+").matcher(content)
                 .find());
         final String location = response.getFirstHeader("Location").getValue();
         assertNotEquals(serverAddress + "/objects", location);
 
         assertEquals("Object wasn't created!", OK.getStatusCode(),
-                getStatus(new HttpGet(location)));
+                     getStatus(new HttpGet(location)));
     }
 
     @Test
@@ -223,7 +223,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String content = EntityUtils.toString(response.getEntity());
         final int status = response.getStatusLine().getStatusCode();
         assertEquals("Didn't get a CREATED response! Got content:\n" + content,
-                CREATED.getStatusCode(), status);
+                     CREATED.getStatusCode(), status);
         assertTrue("Response wasn't a PID", compile("[a-z]+").matcher(content)
                 .find());
         final String location = response.getFirstHeader("Location").getValue();
@@ -279,7 +279,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
                 }
             });
         assertTrue("Didn't find 'describes' link header!",
-                      links.contains("<" + serverAddress + pid + "/ds1/fcr:content>;rel=\"describes\""));
+                   links.contains("<" + serverAddress + pid + "/ds1/fcr:content>;rel=\"describes\""));
 
     }
 
@@ -476,8 +476,8 @@ public class FedoraNodesIT extends AbstractResourceIT {
                 "Didn't find child node!",
                 model.contains(
                         subjectUri,
-                createProperty(REPOSITORY_NAMESPACE + "hasChild"),
-                createResource(location + "/c")));
+                        createProperty(REPOSITORY_NAMESPACE + "hasChild"),
+                        createResource(location + "/c")));
         final Collection<String> links =
             map(response.getHeaders("Link"), new Function<Header, String>() {
 
@@ -486,8 +486,10 @@ public class FedoraNodesIT extends AbstractResourceIT {
                     return h.getValue();
                 }
             });
-        assertTrue("Didn't find LDP resource link header!", links.contains("<" + LDP_NAMESPACE + "Resource>;rel=\"type\""));
-        assertTrue("Didn't find LDP container link header!", links.contains("<" + LDP_NAMESPACE + "DirectContainer>;rel=\"type\""));
+        assertTrue("Didn't find LDP resource link header!",
+                   links.contains("<" + LDP_NAMESPACE + "Resource>;rel=\"type\""));
+        assertTrue("Didn't find LDP container link header!",
+                   links.contains("<" + LDP_NAMESPACE + "DirectContainer>;rel=\"type\""));
     }
 
     @Test
@@ -515,11 +517,11 @@ public class FedoraNodesIT extends AbstractResourceIT {
                         DOTALL).matcher(content).find());
 
         assertFalse("Didn't expect contained member resources",
-                       compile(
-                                  "<"
-                                      + serverAddress
-                                      + pid + "> <" + CONTAINS + ">",
-                                  DOTALL).matcher(content).find());
+                    compile(
+                            "<"
+                                    + serverAddress
+                                    + pid + "> <" + CONTAINS + ">",
+                            DOTALL).matcher(content).find());
     }
 
     @Test
@@ -565,11 +567,11 @@ public class FedoraNodesIT extends AbstractResourceIT {
         logger.trace("Retrieved object graph:\n" + content);
 
         assertTrue("Didn't find member resources",
-                      compile(
-                                 "<"
-                                     + serverAddress
-                                     + pid + "> <" + HAS_CHILD + ">",
-                                 DOTALL).matcher(content).find());
+                   compile(
+                           "<"
+                                   + serverAddress
+                                   + pid + "> <" + HAS_CHILD + ">",
+                           DOTALL).matcher(content).find());
 
         assertFalse("Didn't expect contained member resources",
                        compile(
@@ -850,7 +852,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
         GraphStore graphStore = getGraphStore(new HttpGet(serverAddress + ""));
         logger.trace("For testDescribeSize() first size retrieved repository graph:\n"
-                + graphStore.toString());
+                             + graphStore.toString());
 
         Iterator<Triple> iterator =
             graphStore.getDefaultGraph().find(ANY, HAS_OBJECT_SIZE.asNode(),
@@ -874,7 +876,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         logger.trace("Old size was: " + oldSize + " and new size was: "
                 + newSize);
         assertTrue("No increment in size occurred when we expected one!",
-                Integer.parseInt(oldSize) < Integer.parseInt(newSize));
+                   Integer.parseInt(oldSize) < Integer.parseInt(newSize));
     }
 
     @Test
@@ -1075,11 +1077,24 @@ public class FedoraNodesIT extends AbstractResourceIT {
         for ( Header header : response.getHeaders(headerName) ) {
             for ( String elem : header.getValue().split(",") ) {
                 values.add( elem.trim() );
-            }
+        }
         }
         return values;
     }
 
+    @Test
+    public void testResponseContentTypes() throws Exception {
+        final String pid = getRandomUniquePid();
+        createObject(pid);
+
+        for (final String type : RDFMediaType.POSSIBLE_RDF_RESPONSE_VARIANTS_STRING) {
+            final HttpGet method =
+                    new HttpGet(serverAddress + pid);
+
+            method.addHeader("Accept", type);
+            assertEquals(type, getContentType(method));
+        }
+     }
 
     private void validateHTML(final String path) throws Exception {
         final HttpGet getMethod = new HttpGet(serverAddress + path);
