@@ -156,13 +156,12 @@ public class FedoraNodes extends AbstractResource {
         final String path = toPath(pathList);
         LOGGER.trace("Getting head for: {}", path);
 
-        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                session, uriInfo, FedoraNodes.class);
+        final HttpIdentifierTranslator subjects =
+                new HttpIdentifierTranslator(session, this.getClass(), uriInfo);
+
+        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
         LOGGER.trace("Head: Using auto hierarchy path {} to retrieve resource.", jcrPath);
         final FedoraResource resource = nodeService.getObject(session, jcrPath);
-
-        final HttpIdentifierTranslator subjects =
-            new HttpIdentifierTranslator(session, this.getClass(), uriInfo);
 
         checkCacheControlHeaders(request, servletResponse, resource);
 
@@ -199,8 +198,7 @@ public class FedoraNodes extends AbstractResource {
         LOGGER.trace("Getting profile for: {}", path);
         final HttpIdentifierTranslator subjects =
                 new HttpIdentifierTranslator(session, this.getClass(), uriInfo);
-        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                session, uriInfo, FedoraNodes.class);
+        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
         LOGGER.trace("GET: Using auto hierarchy path {} to retrieve resource.", jcrPath);
         final FedoraResource resource = nodeService.getObject(session, jcrPath);
 
@@ -359,8 +357,9 @@ public class FedoraNodes extends AbstractResource {
         LOGGER.debug("Attempting to update path: {}", path);
 
         try {
-            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                    session, uriInfo, FedoraNodes.class);
+            final IdentifierTranslator subjects = new HttpIdentifierTranslator(session, FedoraNodes.class, uriInfo);
+
+            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
             LOGGER.trace("PATCH: Using auto hierarchy path {} to retrieve resource.", jcrPath);
             LOGGER.trace("Converted incoming path {} to path: {}", path, jcrPath);
             if (requestBodyStream != null) {
@@ -370,10 +369,8 @@ public class FedoraNodes extends AbstractResource {
 
                 evaluateRequestPreconditions(request, resource);
 
-                final Dataset properties = resource.updatePropertiesDataset(new HttpIdentifierTranslator(
-                        session, FedoraNodes.class, uriInfo), IOUtils
+                final Dataset properties = resource.updatePropertiesDataset(subjects, IOUtils
                         .toString(requestBodyStream));
-
 
                 final Model problems = properties.getNamedModel(PROBLEMS_MODEL_NAME);
                 if (!problems.isEmpty()) {
@@ -521,7 +518,7 @@ public class FedoraNodes extends AbstractResource {
         LOGGER.trace("Using prefixed external identifier {} to create new resource.", uriInfo.getBaseUri() + "/"
                                                                                           + pid);
         newObjectPath = idTranslator.getPathFromSubject(createResource(uriInfo.getBaseUri() +
-                path + (path.equals("/") ? "" : "/") + pid));
+                                                                       path + (path.equals("/") ? "" : "/") + pid));
         LOGGER.trace("Using auto hierarchy path {} to create new resource.", newObjectPath);
         // remove leading slash left over from translation
         //pid = pid.substring(1, pid.length());
@@ -719,10 +716,11 @@ public class FedoraNodes extends AbstractResource {
             @Context final Request request) throws RepositoryException {
 
         try {
+            final HttpIdentifierTranslator subjects =
+                    new HttpIdentifierTranslator(session, this.getClass(), uriInfo);
 
             final String path = toPath(pathList);
-            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                    session, uriInfo, FedoraNodes.class);
+            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
             LOGGER.trace("DELETE: Using auto hierarchy path {} to retrieve resource.", jcrPath);
             final FedoraResource resource =
                 nodeService.getObject(session, jcrPath);

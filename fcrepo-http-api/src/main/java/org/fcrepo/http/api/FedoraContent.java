@@ -89,13 +89,17 @@ public class FedoraContent extends ContentExposingResource {
             @HeaderParam("Content-Type") final MediaType requestContentType,
                     final InputStream requestBodyStream, @Context final HttpServletResponse servletResponse)
         throws InvalidChecksumException, RepositoryException, URISyntaxException, ParseException {
+
+        final HttpIdentifierTranslator subjects =
+                new HttpIdentifierTranslator(session, FedoraNodes.class,
+                                             uriInfo);
+
         final MediaType contentType = getSimpleContentType(requestContentType);
 
 
         final String newDatastreamPath;
         final String path = toPath(pathList);
-        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                session, uriInfo, FedoraNodes.class);
+        final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
         if (nodeService.exists(session, jcrPath)) {
             if ( nodeService.getObject(session, jcrPath).hasContent() ) {
                 return status(SC_CONFLICT)
@@ -109,8 +113,7 @@ public class FedoraContent extends ContentExposingResource {
             }  else {
                 pid = pidMinter.mintPid();
             }
-            newDatastreamPath = getJCRPath(createResource(uriInfo.getBaseUri() + path + "/" + pid),
-                    session, uriInfo, FedoraNodes.class);
+            newDatastreamPath = getJCRPath(createResource(uriInfo.getBaseUri() + path + "/" + pid), subjects);
         } else {
             newDatastreamPath = jcrPath;
         }
@@ -148,10 +151,6 @@ public class FedoraContent extends ContentExposingResource {
                             contentType.toString(), originalFileName, requestBodyStream,
                             checksumURI);
 
-            final HttpIdentifierTranslator subjects =
-                    new HttpIdentifierTranslator(session, FedoraNodes.class,
-                            uriInfo);
-
             session.save();
             versionService.nodeUpdated(datastream.getNode());
 
@@ -188,9 +187,12 @@ public class FedoraContent extends ContentExposingResource {
         throws RepositoryException, InvalidChecksumException, URISyntaxException, ParseException {
 
         try {
+            final HttpIdentifierTranslator subjects =
+                    new HttpIdentifierTranslator(session, FedoraNodes.class,
+                                                 uriInfo);
+
             final String path = toPath(pathList);
-            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                    session, uriInfo, FedoraNodes.class);
+            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
             final MediaType contentType = getSimpleContentType(requestContentType);
 
             if (nodeService.exists(session, jcrPath)) {
@@ -230,10 +232,6 @@ public class FedoraContent extends ContentExposingResource {
 
             ResponseBuilder builder;
             if (isNew) {
-                final HttpIdentifierTranslator subjects =
-                        new HttpIdentifierTranslator(session, FedoraNodes.class,
-                                uriInfo);
-
                 builder = created(new URI(subjects.getSubject(
                         datastream.getContentNode().getPath()).getURI()));
             } else {
@@ -263,16 +261,17 @@ public class FedoraContent extends ContentExposingResource {
                                @Context final HttpServletResponse servletResponse)
         throws RepositoryException, IOException {
         try {
+            final HttpIdentifierTranslator subjects =
+                    new HttpIdentifierTranslator(session, FedoraNodes.class,
+                                                 uriInfo);
+
             final String path = toPath(pathList);
-            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path),
-                    session, uriInfo, FedoraNodes.class);;
+            final String jcrPath = getJCRPath(createResource(uriInfo.getBaseUri() + path), subjects);
             LOGGER.info("GET: Attempting get {} from hierarchy path {}.", path, jcrPath);
 
             final Datastream ds =
                     datastreamService.getDatastream(session, jcrPath);
-            final HttpIdentifierTranslator subjects =
-                    new HttpIdentifierTranslator(session, FedoraNodes.class,
-                            uriInfo);
+
             return getDatastreamContentResponse(ds, rangeValue, request, servletResponse,
                                                    subjects);
 
