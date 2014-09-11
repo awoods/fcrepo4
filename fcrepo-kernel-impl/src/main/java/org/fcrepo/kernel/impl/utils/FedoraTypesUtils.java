@@ -399,12 +399,10 @@ public abstract class FedoraTypesUtils implements FedoraJcrTypes {
      * @param subjectNode
      * @param mixinName
      */
-    public static boolean nodeTypeMgrHasType(final Node subjectNode,
-                                             final String mixinName) throws RepositoryException {
-      if (subjectNode == null) {
-          return false;
+    public static boolean nodeHasType(final Node subjectNode, final String mixinName) throws RepositoryException {
+        if (subjectNode == null) {
+            return false;
         }
-
-       return getNodeTypeManager(subjectNode).hasNodeType(mixinName);
+        return getNodeTypeManager(subjectNode).hasNodeType(mixinName);
     }
 }

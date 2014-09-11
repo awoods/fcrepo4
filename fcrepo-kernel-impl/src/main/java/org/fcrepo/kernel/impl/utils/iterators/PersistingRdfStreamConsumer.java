@@ -93,7 +93,7 @@ public abstract class PersistingRdfStreamConsumer implements RdfStreamConsumer {
             public boolean apply(final Triple t) {
 
                 final boolean result =
-                      graphSubjects.isFedoraGraphSubject(m.asStatement(t).getSubject()) || t.getSubject().isBlank();
+                        graphSubjects.isFedoraGraphSubject(m.asStatement(t).getSubject()) || t.getSubject().isBlank();
                 if (result) {
                     LOGGER.debug(
                             "Discovered a Fedora-relevant subject in triple: {}.",
@@ -188,18 +188,14 @@ public abstract class PersistingRdfStreamConsumer implements RdfStreamConsumer {
     }
 
 
-     protected Value createValue (final Node n, final Statement t,
-                        final String propertyName) throws RepositoryException {
-
-       final NodePropertiesTools propertiesTools = new NodePropertiesTools();
-      return jcrRdfTools().createValue(n, t.getObject(),
-                    propertiesTools.getPropertyType(n, propertyName));
+    protected Value createValue(final Node n, final Statement t, final String propertyName) throws RepositoryException {
+        final NodePropertiesTools propertiesTools = new NodePropertiesTools();
+        return jcrRdfTools().createValue(n, t.getObject(), propertiesTools.getPropertyType(n, propertyName));
     }
 
-    protected boolean sessionHasType(final Session session,
-               final String mixinName) throws RepositoryException  {
+    protected boolean sessionHasType(final Session session, final String mixinName) throws RepositoryException {
         if (session == null) {
-          return false;
+            return false;
         }
         return session().getWorkspace().getNodeTypeManager().hasNodeType(mixinName);
     }

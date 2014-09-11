@@ -141,9 +141,9 @@ public class JcrPropertyStatementListener extends StatementListener {
             // if the object is an already-existing mixin, update
             // the node's mixins. If it isn't, just treat it normally.
             final Property property = s.getPredicate();
-            final RDFNode RDFnode = s.getObject();
-            if (property.equals(RDF.type) && RDFnode.isResource()) {
-                final Resource mixinResource = RDFnode.asResource();
+            final RDFNode objectNode = s.getObject();
+            if (property.equals(RDF.type) && objectNode.isResource()) {
+                final Resource mixinResource = objectNode.asResource();
                 final String nameSpace = mixinResource.getNameSpace();
 
                 if (nameSpace.equals(LDP_NAMESPACE)) {
@@ -154,7 +154,7 @@ public class JcrPropertyStatementListener extends StatementListener {
                     final String namespacePrefix = session.getNamespacePrefix(nameSpace);
                     final String mixinName = namespacePrefix + ":" + mixinResource.getLocalName();
 
-                    if (FedoraTypesUtils.nodeTypeMgrHasType(subjectNode,mixinName)) {
+                    if (FedoraTypesUtils.nodeHasType(subjectNode, mixinName)) {
 
                         if (subjectNode.canAddMixin(mixinName)) {
                             subjectNode.addMixin(mixinName);
@@ -177,7 +177,7 @@ public class JcrPropertyStatementListener extends StatementListener {
                                                              s.getModel().getNsPrefixMap());
 
             if (validateModificationsForPropertyName(subject, subjectNode, property)) {
-                final Value v = createValue(subjectNode, RDFnode, propertyName);
+                final Value v = createValue(subjectNode, objectNode, propertyName);
 
                 propertiesTools.appendOrReplaceNodeProperty(subjects, subjectNode, propertyName, v);
             }
@@ -210,17 +210,17 @@ public class JcrPropertyStatementListener extends StatementListener {
             // if the object is an already-existing mixin, update
             // the node's mixins. If it isn't, just treat it normally.
             final Property property = s.getPredicate();
-            final RDFNode RDFnode = s.getObject();
+            final RDFNode objectNode = s.getObject();
 
-            if (property.equals(RDF.type) && RDFnode.isResource()) {
-                final Resource mixinResource = RDFnode.asResource();
+            if (property.equals(RDF.type) && objectNode.isResource()) {
+                final Resource mixinResource = objectNode.asResource();
                 final String nameSpace = mixinResource.getNameSpace();
                 final String errorPrefix = "Error removing node type";
                 try {
                     final String namespacePrefix = session.getNamespacePrefix(nameSpace);
                     final String mixinName = namespacePrefix + ":" + mixinResource.getLocalName();
 
-                    if (FedoraTypesUtils.nodeTypeMgrHasType(subjectNode,mixinName)) {
+                    if (FedoraTypesUtils.nodeHasType(subjectNode, mixinName)) {
                         try {
                             subjectNode.removeMixin(mixinName);
                         } catch (final RepositoryException e) {
@@ -267,7 +267,7 @@ public class JcrPropertyStatementListener extends StatementListener {
             // if the property doesn't exist, we don't need to worry about it.
             if (subjectNode.hasProperty(propertyName) &&
                 validateModificationsForPropertyName(subject, subjectNode, property) ) {
-                final Value v = createValue(subjectNode, RDFnode, propertyName);
+                final Value v = createValue(subjectNode, objectNode, propertyName);
 
                 propertiesTools.removeNodeProperty(subjects, subjectNode,
                         propertyName, v);
@@ -293,10 +293,12 @@ public class JcrPropertyStatementListener extends StatementListener {
         return true;
     }
 
-    private Value createValue (final Node subjectNode,
-                               final RDFNode RDFNode, final String propertyName ) throws RepositoryException {
-      return jcrRdfTools.createValue(subjectNode, RDFNode,
-                                       propertiesTools.getPropertyType(subjectNode,propertyName));
+    private Value createValue(final Node subjectNode,
+                              final RDFNode RDFNode,
+                              final String propertyName) throws RepositoryException {
+        return jcrRdfTools.createValue(subjectNode,
+                                       RDFNode,
+                                       propertiesTools.getPropertyType(subjectNode, propertyName));
     }
 
     /**
