@@ -15,6 +15,7 @@
  */
 package org.fcrepo.kernel.impl.utils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.fcrepo.kernel.models.FedoraResource;
@@ -29,6 +30,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
+
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.jcr.PropertyType.REFERENCE;
@@ -301,22 +304,16 @@ public abstract class FedoraTypesUtils implements FedoraJcrTypes {
                                                   final String path) throws RepositoryException {
         final String[] pathSegments = path.replaceAll("^/+", "").replaceAll("/+$", "").split("/");
 
-        Node node = session.getRootNode();
-
-        final int len = pathSegments.length;
-        for (int i = 0; i != len; ++i) {
-            final String pathSegment = pathSegments[i];
-
-            if (node.hasNode(pathSegment)) {
-                // Find the existing node ...
-                node = node.getNode(pathSegment);
-            } else {
-                return node;
-            }
-
+        final Joiner joiner = Joiner.on("/");
+        String ancestorPath = path;
+        int x = pathSegments.length;
+        while (!session.nodeExists(ancestorPath) && x > 0) {
+            LOGGER.info("this ancestor path = {}", ancestorPath);
+            ancestorPath = "/" + joiner.join(Arrays.copyOf(pathSegments, --x));
+            LOGGER.info("next ancestor path = {}", ancestorPath);
         }
 
-        return node;
+        return session.getNode(ancestorPath);
     }
 
 }
