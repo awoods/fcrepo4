@@ -40,7 +40,9 @@ import javax.jcr.Session;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import static java.util.UUID.randomUUID;
 import static org.fcrepo.kernel.RdfLexicon.REPOSITORY_NAMESPACE;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -67,7 +69,29 @@ public class SparqlQueryTransformIT extends AbstractResourceIT {
     public void shouldDoStuff() throws RepositoryException {
         final Session session = repo.login();
 
-        final Container object = containerService.findOrCreate(session, "/testObject");
+        final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
+
+        final String s = "SELECT ?x ?type\n" +
+                "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "primaryType> ?type }";
+        final InputStream stringReader = new ByteArrayInputStream(s.getBytes());
+
+        testObj = new SparqlQueryTransform(stringReader);
+
+        final RdfStream stream = object.getTriples(new DefaultIdentifierTranslator(session),
+                PropertiesRdfContext.class);
+        try (final QueryExecution qexec = testObj.apply(stream)) {
+            assert (qexec != null);
+            final ResultSet results = qexec.execSelect();
+            assert (results != null);
+            assertTrue(results.hasNext());
+        }
+    }
+
+    @Test
+    public void shouldDoStuffNoUUID() throws RepositoryException {
+        final Session session = repo.login();
+
+        final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
 
         final String s = "SELECT ?x ?uuid\n" +
                 "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "uuid> ?uuid }";
@@ -81,7 +105,7 @@ public class SparqlQueryTransformIT extends AbstractResourceIT {
             assert (qexec != null);
             final ResultSet results = qexec.execSelect();
             assert (results != null);
-            assertTrue(results.hasNext());
+            assertFalse(results.hasNext());
         }
     }
 }

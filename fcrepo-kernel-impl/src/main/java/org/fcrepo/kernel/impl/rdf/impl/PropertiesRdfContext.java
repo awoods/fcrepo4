@@ -15,7 +15,10 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl;
 
+import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.isInternalProperty;
+import static org.fcrepo.kernel.utils.UncheckedPredicate.uncheck;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Iterator;
@@ -23,6 +26,7 @@ import java.util.Iterator;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
+import com.google.common.base.Predicate;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyToTriple;
 import org.fcrepo.kernel.models.FedoraBinary;
@@ -46,6 +50,8 @@ public class PropertiesRdfContext extends NodeRdfContext {
     private final PropertyToTriple property2triple;
 
     private static final Logger LOGGER = getLogger(PropertiesRdfContext.class);
+
+    private static final Predicate<Property> IS_UUID = uncheck(p -> p.getName().equals("jcr:uuid"));
 
     /**
      * Default constructor.
@@ -76,7 +82,7 @@ public class PropertiesRdfContext extends NodeRdfContext {
         }
 
         final UnmodifiableIterator<Property> properties =
-                Iterators.filter(allProperties, isInternalProperty.negate()::test);
+                Iterators.filter(allProperties, and(isInternalProperty.negate()::test, not(IS_UUID)));
         return Iterators.concat(Iterators.transform(properties, property2triple));
 
     }

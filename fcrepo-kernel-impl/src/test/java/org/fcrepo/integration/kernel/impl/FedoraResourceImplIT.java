@@ -202,12 +202,13 @@ public class FedoraResourceImplIT extends AbstractIT {
         final Graph graph = object.getTriples(subjects, PropertiesRdfContext.class).asModel().getGraph();
 
         // jcr property
-        final Node s = createGraphSubjectNode(object);
+        Node s = createGraphSubjectNode(object);
         Node p = createURI(REPOSITORY_NAMESPACE + "uuid");
         Node o = createLiteral(object.getNode().getIdentifier());
-        assertTrue(graph.contains(s, p, o));
+        assertFalse(graph.contains(s, p, o));
 
         // multivalued property
+        s = createGraphSubjectNode(object);
         p = createURI(REPOSITORY_NAMESPACE + "mixinTypes");
         o = createLiteral(FEDORA_RESOURCE);
         assertTrue(graph.contains(s, p, o));
@@ -315,17 +316,10 @@ public class FedoraResourceImplIT extends AbstractIT {
 
         final Graph graph = object.getTriples(subjects, PropertiesRdfContext.class).asModel().getGraph();
 
-
-        // jcr property
-        final Node s = createGraphSubjectNode(object);
-        Node p = createURI(REPOSITORY_NAMESPACE + "uuid");
-        Node o = createLiteral(object.getNode().getIdentifier());
-
-        assertTrue(graph.contains(s, p, o));
-
         // multivalued property
-        p = createURI(REPOSITORY_NAMESPACE + "mixinTypes");
-        o = createLiteral(FEDORA_RESOURCE);
+        final Node s = createGraphSubjectNode(object);
+        Node p = createURI(REPOSITORY_NAMESPACE + "mixinTypes");
+        Node o = createLiteral(FEDORA_RESOURCE);
         assertTrue(graph.contains(s, p, o));
 
         o = createLiteral(FEDORA_NON_RDF_SOURCE_DESCRIPTION);
@@ -436,7 +430,7 @@ public class FedoraResourceImplIT extends AbstractIT {
                     subjects,
                     "INSERT { <> <http://purl.org/dc/elements/1.1/title> \"test-original\". }"
                             + " WHERE { }", new RdfStream());
-        } catch (AccessDeniedException e) {
+        } catch (final AccessDeniedException e) {
             fail("Should fail at update, not create property");
         }
         final AccessControlManager acm = session.getAccessControlManager();
