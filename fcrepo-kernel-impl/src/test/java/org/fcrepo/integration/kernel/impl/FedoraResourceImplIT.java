@@ -15,6 +15,7 @@
  */
 package org.fcrepo.integration.kernel.impl;
 
+import static com.hp.hpl.jena.graph.Node.ANY;
 import static com.hp.hpl.jena.graph.NodeFactory.createLiteral;
 import static com.hp.hpl.jena.graph.NodeFactory.createURI;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createPlainLiteral;
@@ -204,13 +205,12 @@ public class FedoraResourceImplIT extends AbstractIT {
         // jcr property
         Node s = createGraphSubjectNode(object);
         Node p = createURI(REPOSITORY_NAMESPACE + "uuid");
-        Node o = createLiteral(object.getNode().getIdentifier());
-        assertFalse(graph.contains(s, p, o));
+        assertFalse(graph.contains(s, p, ANY));
 
         // multivalued property
         s = createGraphSubjectNode(object);
         p = createURI(REPOSITORY_NAMESPACE + "mixinTypes");
-        o = createLiteral(FEDORA_RESOURCE);
+        Node o = createLiteral(FEDORA_RESOURCE);
         assertTrue(graph.contains(s, p, o));
 
         o = createLiteral(FEDORA_CONTAINER);
@@ -250,7 +250,7 @@ public class FedoraResourceImplIT extends AbstractIT {
         o = createLiteral("this-is-some-subject-stored-as-a-binary");
         assertTrue(graph.contains(s, p, o));
 
-        p = Node.ANY;
+        p = ANY;
         o = createLiteral("jcr-data-should-be-ignored");
         assertFalse(graph.contains(s, p, o));
 

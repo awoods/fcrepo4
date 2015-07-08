@@ -66,46 +66,60 @@ public class SparqlQueryTransformIT extends AbstractResourceIT {
     private SparqlQueryTransform testObj;
 
     @Test
-    public void shouldDoStuff() throws RepositoryException {
-        final Session session = repo.login();
+    public void testQueryPrimaryType() throws RepositoryException {
+        Session session = null;
+        try {
+            session = repo.login();
 
-        final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
+            final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
 
-        final String s = "SELECT ?x ?type\n" +
-                "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "primaryType> ?type }";
-        final InputStream stringReader = new ByteArrayInputStream(s.getBytes());
+            final String s = "SELECT ?x ?type\n" +
+                    "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "primaryType> ?type }";
+            final InputStream stringReader = new ByteArrayInputStream(s.getBytes());
 
-        testObj = new SparqlQueryTransform(stringReader);
+            testObj = new SparqlQueryTransform(stringReader);
 
-        final RdfStream stream = object.getTriples(new DefaultIdentifierTranslator(session),
-                PropertiesRdfContext.class);
-        try (final QueryExecution qexec = testObj.apply(stream)) {
-            assert (qexec != null);
-            final ResultSet results = qexec.execSelect();
-            assert (results != null);
-            assertTrue(results.hasNext());
+            final RdfStream stream = object.getTriples(new DefaultIdentifierTranslator(session),
+                    PropertiesRdfContext.class);
+            try (final QueryExecution qexec = testObj.apply(stream)) {
+                assert (qexec != null);
+                final ResultSet results = qexec.execSelect();
+                assert (results != null);
+                assertTrue(results.hasNext());
+            }
+        } finally {
+            if (null != session) {
+                session.logout();
+            }
         }
     }
 
     @Test
-    public void shouldDoStuffNoUUID() throws RepositoryException {
-        final Session session = repo.login();
+    public void testQueryNoUUID() throws RepositoryException {
+        Session session = null;
+        try {
+            session = repo.login();
 
-        final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
+            final Container object = containerService.findOrCreate(session, "/testObject-" + randomUUID());
 
-        final String s = "SELECT ?x ?uuid\n" +
-                "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "uuid> ?uuid }";
-        final InputStream stringReader = new ByteArrayInputStream(s.getBytes());
+            final String s = "SELECT ?x ?uuid\n" +
+                    "WHERE { ?x  <" + REPOSITORY_NAMESPACE + "uuid> ?uuid }";
+            final InputStream stringReader = new ByteArrayInputStream(s.getBytes());
 
-        testObj = new SparqlQueryTransform(stringReader);
+            testObj = new SparqlQueryTransform(stringReader);
 
-        final RdfStream stream = object.getTriples(new DefaultIdentifierTranslator(session),
-                PropertiesRdfContext.class);
-        try (final QueryExecution qexec = testObj.apply(stream)) {
-            assert (qexec != null);
-            final ResultSet results = qexec.execSelect();
-            assert (results != null);
-            assertFalse(results.hasNext());
+            final RdfStream stream = object.getTriples(new DefaultIdentifierTranslator(session),
+                    PropertiesRdfContext.class);
+            try (final QueryExecution qexec = testObj.apply(stream)) {
+                assert (qexec != null);
+                final ResultSet results = qexec.execSelect();
+                assert (results != null);
+                assertFalse(results.hasNext());
+            }
+        } finally {
+            if (null != session) {
+                session.logout();
+            }
         }
     }
 }
