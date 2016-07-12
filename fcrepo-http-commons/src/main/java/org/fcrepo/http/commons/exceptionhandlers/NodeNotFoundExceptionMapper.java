@@ -42,7 +42,7 @@ public class NodeNotFoundExceptionMapper implements
     public Response toResponse(final NodeNotFoundException e) {
 
         LOGGER.error(
-                "NodeNotFoundException intercepted by NodeNotFoundExceptionMapper: {}\n", e.getMessage());
+                "NodeNotFoundException intercepted by NodeNotFoundExceptionMapper\n", e);
 
         return status(NOT_FOUND).build();
     }
