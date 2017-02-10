@@ -18,11 +18,14 @@
 package org.fcrepo.kernel.modeshape.rdf.impl.mappings;
 
 import static com.google.common.collect.Iterators.singletonIterator;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
 
 import org.fcrepo.kernel.api.exception.RepositoryRuntimeException;
+import org.slf4j.Logger;
+
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -38,6 +41,10 @@ public class PropertyValueIterator extends AbstractIterator<Value> {
     private final Iterator<Property> properties;
     private Iterator<Value> currentValues;
 
+    private static final Logger LOGGER = getLogger(PropertyValueIterator.class);
+
+    public static long TOTAL_TIME = 0;
+    public static long TOTAL_REQUESTS = 0;
     /**
      * Iterate through multiple properties' values
      * @param properties the properties
@@ -58,6 +65,8 @@ public class PropertyValueIterator extends AbstractIterator<Value> {
 
     @Override
     protected Value computeNext() {
+
+        final long start = System.currentTimeMillis();
         try {
             if (currentValues != null && currentValues.hasNext()) {
                 return currentValues.next();
@@ -79,6 +88,10 @@ public class PropertyValueIterator extends AbstractIterator<Value> {
             return endOfData();
         } catch (final RepositoryException e) {
             throw new RepositoryRuntimeException(e);
+        } finally {
+            final long end = System.currentTimeMillis();
+            TOTAL_REQUESTS++;
+            TOTAL_TIME += end - start;
         }
     }
 }

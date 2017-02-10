@@ -157,6 +157,8 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
 
     private static final Logger LOGGER = getLogger(FedoraResourceImpl.class);
 
+    public static long TOTAL_TIME = 0;
+
     private static final long NO_TIME = 0L;
     private static final String JCR_CHILD_VERSION_HISTORY = "jcr:childVersionHistory";
     private static final String JCR_VERSIONABLE_UUID = "jcr:versionableUuid";
@@ -301,6 +303,7 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
      */
     @Override
     public Stream<FedoraResource> getChildren(final Boolean recursive) {
+        final long start = System.currentTimeMillis();
         try {
             if (recursive) {
                 return nodeToGoodChildren(node).flatMap(FedoraResourceImpl::getAllChildren);
@@ -308,6 +311,8 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
             return nodeToGoodChildren(node);
         } catch (final RepositoryException e) {
             throw new RepositoryRuntimeException(e);
+        } finally {
+            TOTAL_TIME += System.currentTimeMillis() - start;
         }
     }
 

@@ -50,6 +50,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class PropertyConverter extends Converter<javax.jcr.Property, Property> {
     private static final Logger LOGGER = getLogger(PropertyConverter.class);
 
+    public static long TOTAL_TIME = 0;
+
+
     @Override
     protected Property doForward(final javax.jcr.Property property) {
         LOGGER.trace("Creating predicate for property: {}",
@@ -117,6 +120,8 @@ public class PropertyConverter extends Converter<javax.jcr.Property, Property> {
                                                       final Map<String, String> namespaceMapping)
             throws RepositoryException {
 
+        final long start = System.currentTimeMillis();
+
         // reject if update request contains any fcr namespaces
         if (namespaceMapping != null && namespaceMapping.containsKey("fcr")) {
             throw new FedoraInvalidNamespaceException("Invalid fcr namespace properties " + predicate + ".");
@@ -160,6 +165,7 @@ public class PropertyConverter extends Converter<javax.jcr.Property, Property> {
 
         LOGGER.debug("Took RDF predicate {} and translated it to JCR property {}", namespace, propertyName);
 
+        TOTAL_TIME += System.currentTimeMillis() - start;
         return propertyName;
 
     }

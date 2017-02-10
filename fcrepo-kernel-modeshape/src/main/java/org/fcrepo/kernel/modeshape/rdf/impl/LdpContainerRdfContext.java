@@ -64,6 +64,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class LdpContainerRdfContext extends NodeRdfContext {
     private static final Logger LOGGER = getLogger(LdpContainerRdfContext.class);
 
+    public static long TOTAL_TIME = 0;
+    public static long TOTAL_REQUESTS = 0;
+
     /**
      * Default constructor.
      *
@@ -76,8 +79,16 @@ public class LdpContainerRdfContext extends NodeRdfContext {
             throws RepositoryException {
         super(resource, idTranslator);
 
+        final long start = System.currentTimeMillis();
+        TOTAL_TIME = 0;
+        TOTAL_REQUESTS = 0;
+
         concat(getMembershipContext(resource)
                 .flatMap(uncheck(p -> memberRelations(nodeConverter.convert(p.getParent())))));
+
+        final long end = System.currentTimeMillis();
+        TOTAL_REQUESTS++;
+        TOTAL_TIME += end - start;
     }
 
     @SuppressWarnings("unchecked")

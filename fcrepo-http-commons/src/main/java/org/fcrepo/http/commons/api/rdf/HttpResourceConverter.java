@@ -79,6 +79,9 @@ public class HttpResourceConverter extends IdentifierConverter<Resource,FedoraRe
 
     private static final Logger LOGGER = getLogger(HttpResourceConverter.class);
 
+    public static long TOTAL_TIME = 0;
+    public static long TOTAL_REQUESTS = 0;
+
     protected List<Converter<String, String>> translationChain;
 
     private final FedoraSession session;
@@ -112,6 +115,8 @@ public class HttpResourceConverter extends IdentifierConverter<Resource,FedoraRe
 
     @Override
     protected FedoraResource doForward(final Resource resource) {
+        final long start = System.currentTimeMillis();
+
         final Map<String, String> values = new HashMap<>();
         final String path = asString(resource, values);
         final Session jcrSession = getJcrSession(session);
@@ -145,6 +150,9 @@ public class HttpResourceConverter extends IdentifierConverter<Resource,FedoraRe
                 }
             }
             throw new RepositoryRuntimeException(e);
+        } finally {
+            TOTAL_TIME += System.currentTimeMillis() - start;
+            TOTAL_REQUESTS++;
         }
     }
 

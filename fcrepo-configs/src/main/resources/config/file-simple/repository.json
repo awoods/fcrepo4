@@ -17,6 +17,31 @@
             "minimumBinarySizeInBytes" : 4096
         }
     },
+
+    "indexProviders" : {
+        "local" : {
+            "classname" : "org.modeshape.jcr.index.local.LocalIndexProvider",
+            "directory" : "target/LocalIndexProviderQueryTest"
+        }
+    },
+
+    "indexes" : {
+        "nodesByName": {
+            "kind": "value",
+            "provider": "local",
+            "synchronous": "true",
+            "nodeType": "fedora:Resource",
+            "columns": "jcr:path(PATH)"
+        },
+        "nodesById": {
+            "kind": "value",
+            "provider": "local",
+            "synchronous": "true",
+            "nodeType": "fedora:Resource",
+            "columns": "mode:id(STRING)"
+        }
+    },
+
     "security" : {
         "anonymous" : {
             "roles" : ["readonly","readwrite","admin"],

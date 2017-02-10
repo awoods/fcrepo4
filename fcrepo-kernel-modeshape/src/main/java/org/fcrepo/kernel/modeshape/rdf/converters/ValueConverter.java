@@ -69,6 +69,13 @@ public class ValueConverter extends Converter<Value, RDFNode> {
     private final Session session;
     private final Converter<Node, Resource> graphSubjects;
 
+    public static long TOTAL_TIME = 0;
+    public static long TOTAL_REQUESTS = 0;
+
+    public static long TOTAL_TIME_GRAPH = 0;
+    public static long TOTAL_TIME_NODE_FOR_VAL = 0;
+
+
     /**
      * Convert values between JCR values and RDF objects with the given session and subjects
      * @param session the session
@@ -82,6 +89,7 @@ public class ValueConverter extends Converter<Value, RDFNode> {
 
     @Override
     protected RDFNode doForward(final Value value) {
+        final long start = System.currentTimeMillis();
         try {
             switch (value.getType()) {
                 case BOOLEAN:
@@ -105,6 +113,10 @@ public class ValueConverter extends Converter<Value, RDFNode> {
             }
         } catch (final RepositoryException e) {
             throw new RepositoryRuntimeException(e);
+        } finally {
+            final long end = System.currentTimeMillis();
+            TOTAL_REQUESTS++;
+            TOTAL_TIME += end - start;
         }
     }
 
@@ -177,18 +189,29 @@ public class ValueConverter extends Converter<Value, RDFNode> {
      * @throws RepositoryRuntimeException When the value type is not PATH, REFERENCE or WEAKREFERENCE.
     **/
     public static javax.jcr.Node nodeForValue(final Session session, final Value v) throws RepositoryException {
+        final long start = System.currentTimeMillis();
+
+        final javax.jcr.Node node;
         if (v.getType() == PATH) {
-            return session.getNode(v.getString());
+            node = session.getNode(v.getString());
         } else if (v.getType() == REFERENCE || v.getType() == WEAKREFERENCE) {
-            return session.getNodeByIdentifier(v.getString());
+            node = session.getNodeByIdentifier(v.getString());
         } else {
             throw new RepositoryRuntimeException("Cannot convert value of type "
                     + PropertyType.nameFromValue(v.getType()) + " to a node reference");
         }
+
+        TOTAL_TIME_NODE_FOR_VAL += System.currentTimeMillis() - start;
+        return node;
     }
 
     private RDFNode getGraphSubject(final javax.jcr.Node n) {
-        return graphSubjects.convert(n);
+        final long start = System.currentTimeMillis();
+
+        final RDFNode subject = graphSubjects.convert(n);
+
+        TOTAL_TIME_GRAPH += System.currentTimeMillis() - start;
+        return subject;
     }
 
     protected static class RdfLiteralJcrValueBuilder {

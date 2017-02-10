@@ -133,6 +133,9 @@ import com.google.common.collect.ImmutableList;
 @Path("/{path: .*}")
 public class FedoraLdp extends ContentExposingResource {
 
+    private static long TOTAL_TIME = 0L;
+    private static long TOTAL_REQUESTS = 0L;
+
     private static final Logger LOGGER = getLogger(FedoraLdp.class);
 
     private static final Splitter.MapSplitter RFC3230_SPLITTER =
@@ -234,6 +237,10 @@ public class FedoraLdp extends ContentExposingResource {
             N3_WITH_CHARSET, N3_ALT2_WITH_CHARSET, RDF_XML, NTRIPLES, TEXT_PLAIN_WITH_CHARSET,
             TURTLE_X, TEXT_HTML_WITH_CHARSET})
     public Response getResource(@HeaderParam("Range") final String rangeValue) throws IOException {
+        final long start = System.currentTimeMillis();
+        TOTAL_TIME = 0;
+        TOTAL_REQUESTS = 0;
+
         checkCacheControlHeaders(request, servletResponse, resource(), session);
 
         LOGGER.info("GET resource '{}'", externalPath);
@@ -258,6 +265,11 @@ public class FedoraLdp extends ContentExposingResource {
             return getContent(rangeValue, getChildrenLimit(), rdfStream);
         } finally {
             readLock.release();
+
+            final long end = System.currentTimeMillis();
+            TOTAL_REQUESTS++;
+            TOTAL_TIME += end - start;
+            LOGGER.info("time: {} | requests: {}", TOTAL_TIME , TOTAL_REQUESTS);
         }
     }
 

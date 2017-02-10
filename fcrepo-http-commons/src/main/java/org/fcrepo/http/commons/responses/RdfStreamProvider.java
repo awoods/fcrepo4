@@ -38,6 +38,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.fcrepo.http.commons.api.rdf.HttpResourceConverter;
+import org.fcrepo.kernel.modeshape.FedoraResourceImpl;
+import org.fcrepo.kernel.modeshape.rdf.converters.PropertyConverter;
+import org.fcrepo.kernel.modeshape.rdf.converters.ValueConverter;
+import org.fcrepo.kernel.modeshape.rdf.impl.LdpContainerRdfContext;
+import org.fcrepo.kernel.modeshape.rdf.impl.mappings.PropertyValueIterator;
 import org.slf4j.Logger;
 
 /**
@@ -49,6 +55,9 @@ import org.slf4j.Logger;
 @Provider
 @Produces({TURTLE, N3, N3_ALT2, RDF_XML, NTRIPLES, TEXT_PLAIN, TURTLE_X, JSON_LD})
 public class RdfStreamProvider implements MessageBodyWriter<RdfNamespacedStream> {
+
+    private static long TOTAL_TIME = 0;
+    private static long TOTAL_REQUESTS = 0;
 
     private static final Logger LOGGER = getLogger(RdfStreamProvider.class);
 
@@ -86,9 +95,33 @@ public class RdfStreamProvider implements MessageBodyWriter<RdfNamespacedStream>
         final MultivaluedMap<String, Object> httpHeaders,
         final OutputStream entityStream) {
 
+        final long start = System.currentTimeMillis();
+        TOTAL_TIME = 0;
+        TOTAL_REQUESTS = 0;
+
         LOGGER.debug("Serializing an RdfStream to mimeType: {}", mediaType);
         final RdfStreamStreamingOutput streamOutput = new RdfStreamStreamingOutput(nsStream.stream,
                 nsStream.namespaces, mediaType);
         streamOutput.write(entityStream);
+
+
+        LOGGER.info("val-conv, time: {} | requests: {}", ValueConverter.TOTAL_TIME , ValueConverter.TOTAL_REQUESTS);
+        LOGGER.info("val-conv-n4v, time: {}", ValueConverter.TOTAL_TIME_NODE_FOR_VAL);
+        LOGGER.info("val-conv-subj, time: {}", ValueConverter.TOTAL_TIME_GRAPH);
+        LOGGER.info("prop-conv, time: {}", PropertyConverter.TOTAL_TIME);
+        LOGGER.info("prop-val-itr, time: {} | requests: {}",
+                PropertyValueIterator.TOTAL_TIME ,
+                PropertyValueIterator.TOTAL_REQUESTS);
+        LOGGER.info("rsrc-get-kids, time: {}", FedoraResourceImpl.TOTAL_TIME);
+        LOGGER.info("http-rsc-conv, time: {} | requests: {}",
+                HttpResourceConverter.TOTAL_TIME,
+                HttpResourceConverter.TOTAL_REQUESTS);
+        LOGGER.info("ldp-con-ctxt, time: {} | requests: {}",
+                LdpContainerRdfContext.TOTAL_TIME,
+                LdpContainerRdfContext.TOTAL_REQUESTS);
+
+        TOTAL_REQUESTS++;
+        TOTAL_TIME += System.currentTimeMillis() - start;
+        LOGGER.info("time: {} | requests: {}", TOTAL_TIME , TOTAL_REQUESTS);
     }
 }
