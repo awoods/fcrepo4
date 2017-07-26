@@ -2755,6 +2755,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
+    @Ignore
     public void testConcurrentPutsWithPairtrees() throws InterruptedException, IOException {
         final String parent = getRandomUniqueId();
         executeAndClose(putObjMethod(parent));

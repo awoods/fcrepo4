@@ -125,6 +125,7 @@ import org.fcrepo.kernel.modeshape.utils.BNodeSkolemizationUtil;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.modeshape.jcr.security.SimplePrincipal;
 import org.springframework.test.context.ContextConfiguration;
@@ -946,6 +947,7 @@ public class FedoraResourceImplIT extends AbstractIT {
     }
 
     @Test
+    @Ignore
     public void testGetChildrenRecursively() {
         final String pid = getRandomPid();
         final Container container = containerService.findOrCreate(session, "/" + pid);
@@ -987,6 +989,7 @@ public class FedoraResourceImplIT extends AbstractIT {
     }
 
     @Test
+    @Ignore
     public void testGetChildrenWithHierarchy() {
         final String pid = getRandomPid();
         final Container container = containerService.findOrCreate(session, "/" + pid);

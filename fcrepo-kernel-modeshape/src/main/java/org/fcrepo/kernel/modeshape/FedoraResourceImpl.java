@@ -343,8 +343,7 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
     @SuppressWarnings("unchecked")
     private Stream<FedoraResource> nodeToGoodChildren(final Node input) throws RepositoryException {
         return iteratorToStream(input.getNodes()).filter(nastyChildren.negate())
-            .flatMap(uncheck((final Node child) -> child.isNodeType(FEDORA_PAIRTREE) ? nodeToGoodChildren(child) :
-                        of(nodeToObjectBinaryConverter.convert(child))));
+            .flatMap(uncheck((final Node child) -> of(nodeToObjectBinaryConverter.convert(child))));
     }
 
     /**

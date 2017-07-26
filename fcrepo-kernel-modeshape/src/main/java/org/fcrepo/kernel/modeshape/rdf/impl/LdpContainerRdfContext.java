@@ -121,7 +121,7 @@ public class LdpContainerRdfContext extends NodeRdfContext {
             insertedContainerProperty = MEMBER_SUBJECT.getURI();
         }
 
-        return container.getChildren().flatMap(
+        return container.getChildren(true).flatMap(
             UncheckedFunction.<FedoraResource, Stream<Triple>>uncheck(child -> {
                 final org.apache.jena.graph.Node childSubject = uriFor(child.getDescribedResource());
 
