@@ -83,8 +83,6 @@ public class AllNodeEventsOneEventTest {
 
     private Stream<Event> mockStream2;
 
-    private Stream<Event> mockStream3;
-
     @Before
     public void setUp() throws RepositoryException {
         when(mockEvent1.getPath()).thenReturn(TEST_PATH1);
@@ -105,8 +103,6 @@ public class AllNodeEventsOneEventTest {
         when(mockEvent5.getType()).thenReturn(NODE_ADDED);
         when(mockEvent1.getDate()).thenReturn(5L);
         mockStream2 = of(mockEvent4, mockEvent5);
-
-        mockStream3 = of(mockEvent4, mockEvent5);
     }
 
     @Test

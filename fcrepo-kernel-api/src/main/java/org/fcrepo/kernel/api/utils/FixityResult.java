@@ -34,12 +34,6 @@ public interface FixityResult {
     }
 
     /**
-     * Get the identifier for the entry's store
-     * @return String
-     */
-    String getStoreIdentifier();
-
-    /**
      * Check if the fixity result matches the given checksum URI
      *
      * @param checksum the given checksum uri

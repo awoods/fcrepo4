@@ -56,7 +56,6 @@ import org.fcrepo.kernel.api.FedoraRepository;
 import org.fcrepo.kernel.api.FedoraSession;
 import org.fcrepo.kernel.api.exception.InvalidChecksumException;
 import org.fcrepo.kernel.api.models.FedoraResource;
-import org.fcrepo.kernel.api.observer.EventType;
 import org.fcrepo.kernel.api.models.Container;
 import org.fcrepo.kernel.api.services.BinaryService;
 import org.fcrepo.kernel.api.services.ContainerService;
@@ -89,9 +88,6 @@ abstract class AbstractJmsIT implements MessageListener {
 
     private static final String testMeta = "/testMessageFromMetadata-" + randomUUID();
 
-    private static final String RESOURCE_CREATION_EVENT_TYPE = EventType.RESOURCE_CREATION.getType();
-    private static final String RESOURCE_DELETION_EVENT_TYPE = EventType.RESOURCE_DELETION.getType();
-    private static final String RESOURCE_MODIFICATION_EVENT_TYPE = EventType.RESOURCE_MODIFICATION.getType();
     private static final String TEST_USER_AGENT = "FedoraClient/1.0";
     private static final String TEST_BASE_URL = "http://localhost:8080/rest";
 

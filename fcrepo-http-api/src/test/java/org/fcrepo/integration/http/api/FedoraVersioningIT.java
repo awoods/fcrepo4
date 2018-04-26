@@ -17,7 +17,6 @@
  */
 package org.fcrepo.integration.http.api;
 
-import static com.google.common.collect.Iterators.size;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
@@ -1222,10 +1221,6 @@ public class FedoraVersioningIT extends AbstractResourceIT {
         final HttpGet getVersion = new HttpGet(url);
         getVersion.addHeader("Prefer", "return=representation; include=\"" + EMBED_CONTAINED.toString() + "\"");
         return getDataset(getVersion);
-    }
-
-    private static int countTriples(final DatasetGraph g) {
-        return size(g.find());
     }
 
     private String[] getTimeMapResponseTypes() {

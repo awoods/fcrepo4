@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import org.apache.jena.rdf.model.Resource;
 
-import org.fcrepo.kernel.api.FedoraVersion;
 import org.fcrepo.kernel.api.RdfStream;
 import org.fcrepo.kernel.api.TripleCategory;
 import org.fcrepo.kernel.api.exception.AccessDeniedException;
@@ -208,20 +207,6 @@ public interface FedoraResource {
                          final Set<? extends TripleCategory> contexts);
 
     /**
-     * Get the base version for the node
-     *
-     * @return base version
-     */
-    FedoraResource getBaseVersion();
-
-    /**
-     * Get a stream of versions associated with this resource
-     *
-     * @return the versions associated with this resource
-     */
-    Stream<FedoraVersion> getVersions();
-
-    /**
      * Check if a resource was created in this session
      * @return if resource created in this session
      */
@@ -262,38 +247,6 @@ public interface FedoraResource {
      * @return whether the resource is versioned
      */
     boolean isVersioned();
-
-    /**
-     * Check if a resource is frozen (a historic version).
-     * @return whether the resource is frozen
-     */
-    boolean isFrozenResource();
-
-    /**
-     * When this is a frozen node, get the ancestor that was explicitly versioned
-     * @return the ancestor that was explicity versioned
-     */
-    FedoraResource getVersionedAncestor();
-
-    /**
-     * Get the unfrozen equivalent of a frozen versioned node
-     * @return the unfrozen equivalent of a frozen versioned node
-     */
-    FedoraResource getUnfrozenResource();
-
-    /**
-     * Get a resource version for this object with the provided label.
-     * @param label the label
-     * @return the node for this object at the version provided
-     */
-    FedoraResource getVersion(String label);
-
-    /**
-     * This method returns the version label of this frozen resource.
-     * If this resource is not frozen, null is returned.
-     * @return version label
-     */
-    String getVersionLabelOfFrozenResource();
 
     /**
      * Get the description for this resource

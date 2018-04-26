@@ -66,8 +66,6 @@ import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_LASTMODIFIED;
 @RunWith(MockitoJUnitRunner.class)
 public class FedoraBinaryImplTest implements FedoraTypes {
 
-    private static final String testDsId = "testDs";
-
     private FedoraBinary testObj;
 
     @Mock

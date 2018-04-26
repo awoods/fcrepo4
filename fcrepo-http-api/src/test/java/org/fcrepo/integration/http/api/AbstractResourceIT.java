@@ -460,15 +460,6 @@ public abstract class AbstractResourceIT {
         return randomUUID().toString();
     }
 
-    /**
-     * Gets a random (but valid) property name for use in testing.
-     *
-     * @return string containing random property name
-     */
-    protected static String getRandomPropertyName() {
-        return randomUUID().toString();
-    }
-
     protected static void assertDeleted(final String id) {
         final String location = serverAddress + id;
         assertThat("Expected object to be deleted", getStatus(new HttpHead(location)), is(GONE.getStatusCode()));

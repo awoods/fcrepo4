@@ -58,7 +58,6 @@ import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.FROZEN_PRIMARY_TYPE
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.FROZEN_NODE;
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_CREATED;
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_CREATEDBY;
-import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_FROZEN_NODE;
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_LASTMODIFIED;
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.JCR_LASTMODIFIEDBY;
 import static org.fcrepo.kernel.modeshape.FedoraJcrConstants.ROOT;
@@ -122,12 +121,6 @@ public abstract class FedoraTypesUtils implements FedoraTypes {
      * binary.
      */
     public static Predicate<Node> isFedoraBinary = new AnyTypesPredicate(FEDORA_BINARY);
-
-    /**
-     * Predicate for determining whether this {@link FedoraResource} has a frozen node
-     */
-    public static Predicate<FedoraResource> isFrozenNode = f -> f.hasType(FROZEN_NODE) ||
-            f.getPath().contains(JCR_FROZEN_NODE);
 
     /**
      * Predicate for determining whether this {@link Node} is a Fedora Skolem node.

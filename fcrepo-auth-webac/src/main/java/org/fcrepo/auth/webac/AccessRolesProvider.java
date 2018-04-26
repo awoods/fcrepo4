@@ -17,11 +17,8 @@
  */
 package org.fcrepo.auth.webac;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -37,8 +34,6 @@ import org.modeshape.jcr.value.Path;
  */
 public interface AccessRolesProvider {
 
-    public static final Map<String, Collection<String>> DEFAULT_ACCESS_ROLES = emptyMap();
-
     /**
      * Get the roles assigned to this Node. Optionally search up the tree for the effective roles.
      *
@@ -48,23 +43,6 @@ public interface AccessRolesProvider {
      */
     public Map<String, Collection<String>> getRoles(final Node node, final boolean effective);
 
-    /**
-     * Assigns the given set of roles to each principal.
-     *
-     * @param node the Node to edit
-     * @param data the roles to assign
-     * @throws RepositoryException if repository exception occurred
-     */
-    public void postRoles(final Node node, final Map<String, Set<String>> data)
-            throws RepositoryException;
-
-    /**
-     * Deletes all roles assigned on this node and removes the mixin type.
-     *
-     * @param node the node to delete
-     * @throws RepositoryException if delete failed
-     */
-    public void deleteRoles(final Node node) throws RepositoryException;
 
     /**
      * Finds effective roles assigned to a path, using first real ancestor node.

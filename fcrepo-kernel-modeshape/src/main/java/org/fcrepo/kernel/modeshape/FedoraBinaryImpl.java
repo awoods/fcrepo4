@@ -416,12 +416,6 @@ public class FedoraBinaryImpl extends FedoraResourceImpl implements FedoraBinary
         super.delete();
     }
 
-    @Override
-    public FedoraResource getBaseVersion() {
-        LOGGER.warn("Remove method 'getBaseVersion()' if not used after implementing Memento!");
-        return null;
-    }
-
     private static void decorateContentNode(final Node dsNode, final Node descNode, final Collection<URI> checksums)
             throws RepositoryException {
         if (dsNode == null) {

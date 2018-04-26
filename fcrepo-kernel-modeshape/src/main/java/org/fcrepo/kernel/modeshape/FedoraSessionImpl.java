@@ -124,11 +124,6 @@ public class FedoraSessionImpl implements FedoraSession {
     }
 
     @Override
-    public Instant getCreated() {
-        return created;
-    }
-
-    @Override
     public Optional<Instant> getExpires() {
         return of(expires);
     }
@@ -172,11 +167,6 @@ public class FedoraSessionImpl implements FedoraSession {
     @Override
     public void removeSessionData(final String key, final String value) {
         sessionData.remove(key, value);
-    }
-
-    @Override
-    public void removeSessionData(final String key) {
-        sessionData.remove(key);
     }
 
     /**

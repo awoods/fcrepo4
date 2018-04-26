@@ -1292,11 +1292,6 @@ public class FedoraResourceImplIT extends AbstractIT {
         assertTrue(aclNode.isNodeType(FEDORA_WEBAC_ACL));
     }
 
-    private void addVersionLabel(final String label, final FedoraResource r) throws RepositoryException {
-        final Session jcrSession = getJcrSession(session);
-        addVersionLabel(label, jcrSession.getWorkspace().getVersionManager().getBaseVersion(r.getPath()));
-    }
-
     private static void addVersionLabel(final String label, final Version v) throws RepositoryException {
         v.getContainingHistory().addVersionLabel(v.getName(), label, false);
     }

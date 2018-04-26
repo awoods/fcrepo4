@@ -17,7 +17,6 @@
  */
 package org.fcrepo.http.api;
 
-import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.EnumSet.of;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.empty;
@@ -37,7 +36,6 @@ import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.temporaryRedirect;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.PARTIAL_CONTENT;
 import static javax.ws.rs.core.Response.Status.REQUESTED_RANGE_NOT_SATISFIABLE;
 import static javax.ws.rs.core.Variant.mediaTypes;
@@ -90,7 +88,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -135,7 +132,6 @@ import org.fcrepo.kernel.api.exception.PreconditionException;
 import org.fcrepo.kernel.api.exception.RepositoryRuntimeException;
 import org.fcrepo.kernel.api.exception.ServerManagedPropertyException;
 import org.fcrepo.kernel.api.exception.ServerManagedTypeException;
-import org.fcrepo.kernel.api.exception.UnsupportedAlgorithmException;
 import org.fcrepo.kernel.api.exception.UnsupportedAccessTypeException;
 import org.fcrepo.kernel.api.models.Container;
 import org.fcrepo.kernel.api.models.FedoraBinary;
@@ -145,7 +141,6 @@ import org.fcrepo.kernel.api.models.FedoraWebacAcl;
 import org.fcrepo.kernel.api.models.NonRdfSourceDescription;
 import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
 import org.fcrepo.kernel.api.services.policy.StoragePolicyDecisionPoint;
-import org.fcrepo.kernel.api.utils.ContentDigest;
 import org.fcrepo.kernel.api.utils.MessageExternalBodyContentType;
 
 import org.glassfish.jersey.media.multipart.ContentDisposition;
@@ -206,11 +201,6 @@ public abstract class ContentExposingResource extends FedoraBaseResource {
 
     protected static final Splitter.MapSplitter RFC3230_SPLITTER =
         Splitter.on(',').omitEmptyStrings().trimResults().withKeyValueSeparator(Splitter.on('=').limit(2));
-
-    protected Response getContent(final String rangeValue,
-            final RdfStream rdfStream) throws IOException, UnsupportedAccessTypeException {
-        return getContent(rangeValue, -1, rdfStream);
-    }
 
     /**
      * This method returns an HTTP response with content body appropriate to the following arguments.
@@ -972,37 +962,6 @@ public abstract class ContentExposingResource extends FedoraBaseResource {
         final String[] pathSegments = externalPath.split("/");
         if (Arrays.asList(pathSegments).stream().anyMatch(p -> p.startsWith("fedora:"))) {
             throw new ServerManagedTypeException("Path cannot contain a fedora: prefixed segment.");
-        }
-    }
-
-    /**
-     * Parse the RFC-3230 Digest response header value. Look for a sha1 checksum and return it as a urn, if missing or
-     * malformed an empty string is returned.
-     *
-     * @param digest The Digest header value
-     * @return the sha1 checksum value
-     * @throws UnsupportedAlgorithmException if an unsupported digest is used
-     */
-    protected static Collection<String> parseDigestHeader(final String digest) throws UnsupportedAlgorithmException {
-        try {
-            final Map<String, String> digestPairs = RFC3230_SPLITTER.split(nullToEmpty(digest));
-            final boolean allSupportedAlgorithms = digestPairs.keySet().stream().allMatch(
-                ContentDigest.DIGEST_ALGORITHM::isSupportedAlgorithm);
-
-            // If you have one or more digests that are all valid or no digests.
-            if (digestPairs.isEmpty() || allSupportedAlgorithms) {
-                return digestPairs.entrySet().stream()
-                    .filter(entry -> ContentDigest.DIGEST_ALGORITHM.isSupportedAlgorithm(entry.getKey()))
-                    .map(entry -> ContentDigest.asURI(entry.getKey(), entry.getValue()).toString())
-                    .collect(Collectors.toSet());
-            } else {
-                throw new UnsupportedAlgorithmException(String.format("Unsupported Digest Algorithim: %1$s", digest));
-            }
-        } catch (final RuntimeException e) {
-            if (e instanceof IllegalArgumentException) {
-                throw new ClientErrorException("Invalid Digest header: " + digest + "\n", BAD_REQUEST);
-            }
-            throw e;
         }
     }
 

@@ -50,9 +50,6 @@ public abstract class AbstractRolesAuthorizationDelegate implements FedoraAuthor
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractRolesAuthorizationDelegate.class);
 
-    protected static final String AUTHZ_DETECTION = "/{" +
-            "http://fedora.info/definitions/v4/authorization#" + "}";
-
     private static final String[] REMOVE_ACTIONS = {"remove"};
 
     @Inject

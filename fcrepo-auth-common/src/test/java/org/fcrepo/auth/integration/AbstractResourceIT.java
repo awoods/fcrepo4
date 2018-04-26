@@ -68,20 +68,8 @@ public abstract class AbstractResourceIT {
                     Integer.MAX_VALUE).build();
     }
 
-    protected static HttpPost postObjMethod(final String pid) {
-        return new HttpPost(serverAddress + pid);
-    }
-
     protected static HttpPut putObjMethod(final String pid) {
         return new HttpPut(serverAddress + pid);
-    }
-
-    protected static HttpPost postObjMethod(final String pid,
-            final String query) {
-        if (query.equals("")) {
-            return new HttpPost(serverAddress + pid);
-        }
-        return new HttpPost(serverAddress + pid + "?" + query);
     }
 
     protected static HttpPost postDSMethod(final String pid,

@@ -59,7 +59,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -116,16 +115,6 @@ public class WebACRolesProvider implements AccessRolesProvider {
 
     @Inject
     private SessionFactory sessionFactory;
-
-    @Override
-    public void postRoles(final Node node, final Map<String, Set<String>> data) throws RepositoryException {
-        throw new UnsupportedOperationException("postRoles() is not implemented");
-    }
-
-    @Override
-    public void deleteRoles(final Node node) throws RepositoryException {
-        throw new UnsupportedOperationException("deleteRoles() is not implemented");
-    }
 
     @Override
     public Map<String, Collection<String>> findRolesForPath(final Path absPath, final Session session)

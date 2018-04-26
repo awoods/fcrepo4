@@ -44,8 +44,6 @@ public final class FedoraJcrConstants {
 
     public static final String ROOT = "mode:root";
 
-    public static final String VERSIONABLE = "mix:versionable";
-
     public static final String FIELD_DELIMITER = "\30^^\30";
 
     private FedoraJcrConstants() {

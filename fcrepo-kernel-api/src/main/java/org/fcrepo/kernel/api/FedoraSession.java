@@ -49,12 +49,6 @@ public interface FedoraSession {
     Instant updateExpiry(Duration amountToAdd);
 
     /**
-     * Get the date this session was created
-     * @return creation date
-     */
-    Instant getCreated();
-
-    /**
      * Get the date this session expires
      * @return expiration date, if one exists
      */
@@ -102,11 +96,4 @@ public interface FedoraSession {
      */
     void removeSessionData(String key, String value);
 
-    /**
-     * Remove all session data for a particular key
-     * @param key the data key
-     */
-    default void removeSessionData(String key) {
-        getSessionData(key).forEach(v -> removeSessionData(key, v));
-    }
 }

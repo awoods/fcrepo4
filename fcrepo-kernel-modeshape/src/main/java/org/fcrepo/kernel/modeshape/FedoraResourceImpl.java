@@ -105,7 +105,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.fcrepo.kernel.api.FedoraTypes;
-import org.fcrepo.kernel.api.FedoraVersion;
 import org.fcrepo.kernel.api.RdfLexicon;
 import org.fcrepo.kernel.api.RdfStream;
 import org.fcrepo.kernel.api.TripleCategory;
@@ -1208,16 +1207,6 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
     }
 
   @Override
-  public FedoraResource getBaseVersion() {
-    return null;
-  }
-
-  @Override
-  public Stream<FedoraVersion> getVersions() {
-    return null;
-  }
-
-  @Override
   public void enableVersioning() {
         if (!isVersioned()) {
             findOrCreateTimeMap();
@@ -1278,33 +1267,4 @@ public class FedoraResourceImpl extends JcrTools implements FedoraTypes, FedoraR
       return unit.between(d1, d2);
   }
 
-  @Override
-  public boolean isFrozenResource() {
-      LOGGER.warn("Review if method (isFrozenResource) can be removed after implementing Memento!");
-      return false;
-  }
-
-  @Override
-  public FedoraResource getVersionedAncestor() {
-      LOGGER.warn("Review if method (getVersionedAncestor) can be removed after implementing Memento!");
-      return null;
-  }
-
-  @Override
-  public FedoraResource getUnfrozenResource() {
-      LOGGER.warn("Review if method (getUnfrozenResource) can be removed after implementing Memento!");
-      return null;
-  }
-
-  @Override
-  public FedoraResource getVersion(final String label) {
-      LOGGER.warn("Review if method (getVersion) can be removed after implementing Memento!");
-      return null;
-  }
-
-  @Override
-  public String getVersionLabelOfFrozenResource() {
-      LOGGER.warn("Review if method (getVersionLabelOfFrozenResource) can be removed after implementing Memento!");
-      return null;
-  }
 }
