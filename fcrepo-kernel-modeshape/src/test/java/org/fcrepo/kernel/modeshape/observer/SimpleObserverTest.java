@@ -33,7 +33,6 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.ObservationManager;
 
-import org.fcrepo.kernel.api.FedoraRepository;
 import org.fcrepo.kernel.api.observer.FedoraEvent;
 import org.fcrepo.kernel.modeshape.FedoraRepositoryImpl;
 import org.fcrepo.kernel.modeshape.observer.eventmappings.OneToOne;
@@ -59,8 +58,6 @@ import com.google.common.eventbus.EventBus;
 public class SimpleObserverTest {
 
     private SimpleObserver testObserver;
-
-    private FedoraRepository testRepository;
 
     @Mock
     private ObservationManager mockOM;

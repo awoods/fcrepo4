@@ -38,11 +38,4 @@ public interface StoragePolicyDecisionPoint extends List<StoragePolicy> {
      */
     String evaluatePolicies(final FedoraResource resource);
 
-    /**
-     * Explicitly set the policies this PDP should use
-     *
-     * @param policies the policies
-     */
-    void setPolicies(final List<StoragePolicy> policies);
-
 }

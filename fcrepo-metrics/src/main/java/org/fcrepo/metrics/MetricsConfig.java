@@ -22,13 +22,13 @@ import static java.lang.System.getProperty;
 
 import java.net.InetSocketAddress;
 
+import com.codahale.metrics.JmxReporter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Configuration class for Metrics reporting to Graphite and JMX.

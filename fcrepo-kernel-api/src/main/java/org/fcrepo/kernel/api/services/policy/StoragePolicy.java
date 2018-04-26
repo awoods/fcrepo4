@@ -17,8 +17,6 @@
  */
 package org.fcrepo.kernel.api.services.policy;
 
-import org.fcrepo.kernel.api.models.FedoraResource;
-
 /**
  * A binary storage policy definition and evaluation machinery
  * @author cbeer
@@ -26,11 +24,4 @@ import org.fcrepo.kernel.api.models.FedoraResource;
  */
 public interface StoragePolicy {
 
-    /**
-     * Evaluate the policy; if the policy matches, return the
-     * binary storage hint. If not, return null.
-     * @param resource the resource
-     * @return the binary storage hint
-     */
-    String evaluatePolicy(final FedoraResource resource);
 }

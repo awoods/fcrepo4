@@ -40,11 +40,6 @@ final public class URIConstants {
     public static final String WEBAC_NAMESPACE_VALUE = RdfLexicon.WEBAC_NAMESPACE_VALUE;
 
     /**
-     * Namespace for the W3C WebAC vocabulary.
-     */
-    public static final URI WEBAC_NAMESPACE = URI.create(WEBAC_NAMESPACE_VALUE);
-
-    /**
      * Read access mode.
      */
     public static final String WEBAC_MODE_READ_VALUE = WEBAC_NAMESPACE_VALUE + "Read";
@@ -136,31 +131,16 @@ final public class URIConstants {
      * FOAF Namespace
      */
     public static final String FOAF_NAMESPACE_VALUE = "http://xmlns.com/foaf/0.1/";
-    public static final URI FOAF_NAMESPACE = URI.create(FOAF_NAMESPACE_VALUE);
 
     /**
      * FOAF Agent
      */
     public static final String FOAF_AGENT_VALUE = FOAF_NAMESPACE_VALUE + "Agent";
-    public static final URI FOAF_AGENT = URI.create(FOAF_AGENT_VALUE);
-
-    /**
-     * FOAF member
-     */
-    public static final String FOAF_MEMBER_VALUE = FOAF_NAMESPACE_VALUE + "member";
-    public static final URI FOAF_MEMBER = URI.create(FOAF_MEMBER_VALUE);
-
-    /**
-     * FOAF Group
-     */
-    public static final String FOAF_GROUP_VALUE = FOAF_NAMESPACE_VALUE + "Group";
-    public static final URI FOAF_GROUP = URI.create(FOAF_GROUP_VALUE);
 
     /**
      * vCard Namespace
      */
     public static final String VCARD_NAMESPACE_VALUE = "http://www.w3.org/2006/vcard/ns#";
-    public static final URI VCARD_NAMESPACE = URI.create(VCARD_NAMESPACE_VALUE);
 
     /**
      * vCard Group
@@ -172,19 +152,6 @@ final public class URIConstants {
      * vCard member
      */
     public static final String VCARD_MEMBER_VALUE = VCARD_NAMESPACE_VALUE + "hasMember";
-    public static final URI VCARD_MEMBER = URI.create(VCARD_MEMBER_VALUE);
-
-    /**
-     * Fedora WebAC Namespace
-     */
-    public static final String FEDORA_WEBAC_NAMESPACE_VALUE = "http://fedora.info/definitions/v4/webac#";
-    public static final URI FEDORA_WEBAC_NAMESPACE = URI.create(FEDORA_WEBAC_NAMESPACE_VALUE);
-
-    /**
-     * Fedora ACL
-     */
-    public static final String FEDORA_WEBAC_ACL_VALUE = FEDORA_WEBAC_NAMESPACE_VALUE + "Acl";
-    public static final URI FEDORA_WEBAC_ACL = URI.create(FEDORA_WEBAC_ACL_VALUE);
 
     private URIConstants() {
     }

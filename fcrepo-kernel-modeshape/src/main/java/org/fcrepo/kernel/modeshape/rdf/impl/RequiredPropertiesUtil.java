@@ -69,20 +69,6 @@ public class RequiredPropertiesUtil {
         assertContainsRequiredTypes(model, CONTAINER_TYPES);
     }
 
-    /**
-     * Throws a ConstraintViolationException if the model does not contain all required server-managed triples for a
-     * binary description.
-     *
-     * @param model rdf to validate
-     * @throws ConstraintViolationException if model does not contain all required server-managed triples for binary
-     * description
-     */
-    public static void assertRequiredBinaryTriples(final Model model)
-            throws ConstraintViolationException {
-        assertContainsRequiredProperties(model, REQUIRED_PROPERTIES);
-        assertContainsRequiredTypes(model, BINARY_TYPES);
-    }
-
     private static void assertContainsRequiredProperties(final Model model, final Collection<Property> properties) {
         for (final Property property : properties) {
             if (!model.contains(null, property, (RDFNode) null)) {

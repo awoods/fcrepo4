@@ -21,13 +21,9 @@ import static javax.jcr.query.Query.JCR_SQL2;
 import static org.fcrepo.kernel.api.FedoraTypes.CONTENT_SIZE;
 import static org.fcrepo.kernel.api.FedoraTypes.FEDORA_CONTAINER;
 import static org.fcrepo.kernel.api.FedoraTypes.FEDORA_NON_RDF_SOURCE_DESCRIPTION;
-import static org.fcrepo.kernel.api.RdfLexicon.NT_VERSION_FILE;
-import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
-import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 import static org.modeshape.jcr.api.JcrConstants.JCR_PATH;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.Repository;
@@ -38,7 +34,6 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 
-import org.fcrepo.kernel.api.exception.RepositoryRuntimeException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -73,71 +68,6 @@ public class ServiceHelpers {
             }
         }
         return size;
-    }
-
-    /**
-     * @param obj the object
-     * @return object size in bytes
-     * @throws RepositoryException if repository exception occurred
-     */
-    public static Long getObjectSize(final Node obj) throws RepositoryException {
-        return getNodePropertySize(obj) + getObjectDSSize(obj);
-    }
-
-    /**
-     * @param obj the object
-     * @return object's datastreams' total size in bytes
-     * @throws RepositoryException if repository exception occurred
-     */
-    private static Long getObjectDSSize(final Node obj)
-        throws RepositoryException {
-        Long size = 0L;
-        for (final NodeIterator i = obj.getNodes(); i.hasNext();) {
-            final Node node = i.nextNode();
-            if (node.isNodeType(NT_VERSION_FILE)) {
-                size += getDatastreamSize(node);
-            }
-        }
-        return size;
-    }
-
-    /**
-     * Get the size of a datastream by calculating the size of the properties
-     * and the binary properties
-     *
-     * @param ds the node
-     * @return size of the datastream's properties and binary properties
-     * @throws RepositoryException if repository exception occurred
-     */
-    public static Long getDatastreamSize(final Node ds)
-        throws RepositoryException {
-        return getNodePropertySize(ds) + getContentSize(ds);
-    }
-
-    /**
-     * Get the size of the JCR content binary property
-     *
-     * @param ds the given node
-     * @return size of the binary content property
-     */
-    public static Long getContentSize(final Node ds) {
-        try {
-            long size = 0L;
-            if (ds.hasNode(JCR_CONTENT)) {
-                final Node contentNode = ds.getNode(JCR_CONTENT);
-
-                if (contentNode.hasProperty(JCR_DATA)) {
-                    size =
-                            ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
-                                    .getBinary().getSize();
-                }
-            }
-
-            return size;
-
-        } catch (final RepositoryException e) {
-            throw new RepositoryRuntimeException(e);
-        }
     }
 
     /**

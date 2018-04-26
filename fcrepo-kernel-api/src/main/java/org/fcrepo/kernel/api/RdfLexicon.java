@@ -42,8 +42,6 @@ public final class RdfLexicon {
     **/
     public static final String REPOSITORY_NAMESPACE = "http://fedora.info/definitions/v4/repository#";
 
-    public static final String EVENT_NAMESPACE = "http://fedora.info/definitions/v4/event#";
-
     public static final String FCREPO_API_NAMESPACE = "http://fedora.info/definitions/fcrepo#";
 
     public static final String ACTIVITY_STREAMS_NAMESPACE = "https://www.w3.org/ns/activitystreams#";
@@ -64,8 +62,6 @@ public final class RdfLexicon {
      * Namespace for the W3C WebAC vocabulary.
      */
     public static final String WEBAC_NAMESPACE_VALUE = "http://www.w3.org/ns/auth/acl#";
-    public static final String FEDORA_WEBAC_NAMESPACE_VALUE = "http://fedora.info/definitions/v4/webac#";
-    public static final String FEDORA_WEBAC_ACL_VALUE = FEDORA_WEBAC_NAMESPACE_VALUE + "Acl";
 
     /**
      * Fedora configuration namespace "fedora-config", used for user-settable
@@ -192,8 +188,6 @@ public final class RdfLexicon {
             createProperty(REPOSITORY_NAMESPACE + "objectSize");
     public static final Property HAS_TRANSACTION_SERVICE =
             createProperty(REPOSITORY_NAMESPACE + "hasTransactionProvider");
-    public static final Property HAS_ACCESS_ROLES_SERVICE =
-            createProperty(REPOSITORY_NAMESPACE + "hasAccessRoles");
 
     public static final Set<Property> repositoryProperties = of(
             HAS_OBJECT_COUNT, HAS_OBJECT_SIZE, HAS_TRANSACTION_SERVICE);
@@ -210,8 +204,6 @@ public final class RdfLexicon {
     // OTHER SERVICES
     public static final Property HAS_FIXITY_SERVICE =
             createProperty(REPOSITORY_NAMESPACE + "hasFixityService");
-    public static final Property HAS_SPARQL_ENDPOINT =
-        createProperty(SPARQL_SD_NAMESPACE + "endpoint");
 
     public static final Set<Property> otherServiceProperties = of(HAS_FIXITY_SERVICE);
 
@@ -222,28 +214,15 @@ public final class RdfLexicon {
     public static final Property DESCRIBED_BY =
             createProperty("http://www.iana.org/assignments/relation/describedby");
 
-    public static final Set<Property> structProperties = of(DESCRIBES, DESCRIBED_BY);
-
     // CONTENT
-    public static final Resource CONTENT_LOCATION_TYPE =
-            createResource(PREMIS_NAMESPACE + "ContentLocation");
     public static final Resource INACCESSIBLE_RESOURCE =
             createResource(REPOSITORY_NAMESPACE + "inaccessibleResource");
-    public static final Property HAS_CONTENT_LOCATION =
-            createProperty(PREMIS_NAMESPACE + "hasContentLocation");
-    public static final Property HAS_CONTENT_LOCATION_VALUE =
-        createProperty(PREMIS_NAMESPACE + "hasContentLocationValue");
     public static final Property HAS_MIME_TYPE =
             createProperty(EBUCORE_NAMESPACE + "hasMimeType");
     public static final Property HAS_ORIGINAL_NAME =
             createProperty(EBUCORE_NAMESPACE + "filename");
 
-    public static final Set<Property> contentProperties = of(HAS_CONTENT_LOCATION, HAS_CONTENT_LOCATION_VALUE,
-            HAS_SIZE);
-
     // RDF EXTRACTION
-    public static final Property COULD_NOT_STORE_PROPERTY =
-            createProperty(REPOSITORY_NAMESPACE + "couldNotStoreProperty");
     public static final Property INBOUND_REFERENCES = createProperty(FCREPO_API_NAMESPACE + "PreferInboundReferences");
     public static final Property SERVER_MANAGED = createProperty(REPOSITORY_NAMESPACE + "ServerManaged");
 

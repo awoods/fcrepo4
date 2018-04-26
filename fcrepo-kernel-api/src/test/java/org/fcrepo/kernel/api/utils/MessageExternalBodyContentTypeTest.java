@@ -53,20 +53,6 @@ public class MessageExternalBodyContentTypeTest {
                 "message/external-body; access-type=ftp; URL=\"\"");
     }
 
-    public void testParseExternalBodyAccessTypeCaseInsensitive() throws UnsupportedAccessTypeException {
-        final MessageExternalBodyContentType contentType = MessageExternalBodyContentType.parse(
-                "message/external-body; access-type=url; URL=\"" + RESOURCE_URL + "\"");
-        assertEquals("Access-type doesn't match.", "url", contentType.getAccessType());
-        assertEquals("URL doesn't match.", RESOURCE_URL, contentType.getResourceLocation());
-    }
-
-    public void testParseExternalBodyLocationKeyCaseInsensitive() throws UnsupportedAccessTypeException {
-        final MessageExternalBodyContentType contentType = MessageExternalBodyContentType.parse(
-                "message/external-body; access-type=URL; url=\"" + RESOURCE_URL + "\"");
-        assertEquals("Access-type doesn't match.", "url", contentType.getAccessType());
-        assertEquals("URL doesn't match.", RESOURCE_URL, contentType.getResourceLocation());
-    }
-
     @Test(expected = UnsupportedAccessTypeException.class)
     public void testParseExternalBodyInvalidMimeType() throws UnsupportedAccessTypeException {
         MessageExternalBodyContentType.parse(
