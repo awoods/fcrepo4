@@ -24,6 +24,7 @@ import org.fcrepo.persistence.api.PersistentStorageSession;
 import org.fcrepo.persistence.api.exceptions.PersistentItemNotFoundException;
 import org.fcrepo.persistence.api.exceptions.PersistentStorageException;
 import org.fcrepo.persistence.ocfl.api.FedoraToOCFLObjectIndexUtil;
+import org.fcrepo.persistence.ocfl.impl.OCFLConstants;
 import org.fcrepo.persistence.ocfl.impl.OCFLPersistentSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +33,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import java.io.File;
+
 import static org.fcrepo.kernel.api.FedoraTypes.FEDORA_ID_PREFIX;
 import static org.fcrepo.kernel.api.RdfLexicon.BASIC_CONTAINER;
-import static org.fcrepo.persistence.ocfl.impl.OCFLConstants.FEDORA_TO_OCFL_INDEX_FILE;
 
 /**
  * This class is responsible for initializing the repository on start-up.
@@ -63,10 +65,12 @@ public class RepositoryInitializer {
         final PersistentStorageSession session = this.sessionManager.getSession("initializationSession" +
                                                                                  System.currentTimeMillis());
 
-        if (!FEDORA_TO_OCFL_INDEX_FILE.exists()) {
+        final File fedoraToOcflIndexFile = new OCFLConstants().getFedoraToOCFLIndexFile();
+        if (!fedoraToOcflIndexFile.exists()) {
+            LOGGER.info("The Fedora to OCFL Index not found at {}. Rebuilding...", fedoraToOcflIndexFile);
             fedoraToOCFLObjectIndexUtil.rebuild();
         } else {
-            LOGGER.info("The Fedora to OCFL Index already exists. Skipping rebuild.");
+            LOGGER.info("The Fedora to OCFL Index already exists at {}. Skipping rebuild.", fedoraToOcflIndexFile);
         }
 
         try {
