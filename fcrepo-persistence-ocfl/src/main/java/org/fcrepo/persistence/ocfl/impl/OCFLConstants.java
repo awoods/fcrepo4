@@ -23,12 +23,15 @@ import java.nio.file.Paths;
 import static java.lang.System.getProperty;
 import static org.apache.commons.lang3.SystemUtils.JAVA_IO_TMPDIR;
 
+import org.springframework.stereotype.Component;
+
 /**
  * OCFL Constants.
  * @author whikloj
  * @author awoods
  * @since 6.0.0
  */
+@Component
 public final class OCFLConstants {
 
     private static final String OCFL_STAGING_DIR_KEY = "fcrepo.ocfl.staging.dir";
