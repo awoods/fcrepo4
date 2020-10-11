@@ -40,7 +40,6 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -75,7 +74,8 @@ import static org.fcrepo.search.api.Condition.Field.RDF_TYPE;
  */
 @Component("searchIndexImpl")
 public class DbSearchIndexImpl implements SearchIndex {
-    public static final String SELECT_RDF_TYPE_ID = "select id from search_rdf_type where rdf_type_uri = :rdf_type_uri";
+    public static final String SELECT_RDF_TYPE_ID = "select id, rdf_type_uri from search_rdf_type where rdf_type_uri " +
+            "in (:rdf_type_uri)";
     private static final Logger LOGGER = LoggerFactory.getLogger(DbSearchIndexImpl.class);
     private static final String SIMPLE_SEARCH_TABLE = "simple_search";
     private static final String DELETE_FROM_INDEX_SQL = "DELETE FROM simple_search WHERE fedora_id = :fedora_id;";
@@ -121,7 +121,6 @@ public class DbSearchIndexImpl implements SearchIndex {
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     private SimpleJdbcInsert jdbcInsertResource;
-    private SimpleJdbcInsert jdbcInsertRdfTypeAssociations;
     private SimpleJdbcInsert jdbcInsertRdfTypes;
 
     @Inject
@@ -146,10 +145,6 @@ public class DbSearchIndexImpl implements SearchIndex {
 
         jdbcInsertResource = new SimpleJdbcInsert(this.jdbcTemplate.getJdbcTemplate())
                 .withTableName(SIMPLE_SEARCH_TABLE)
-                .usingGeneratedKeyColumns(ID_COLUMN);
-
-        jdbcInsertRdfTypeAssociations = new SimpleJdbcInsert(this.jdbcTemplate.getJdbcTemplate())
-                .withTableName(SEARCH_RESOURCE_RDF_TYPE_TABLE)
                 .usingGeneratedKeyColumns(ID_COLUMN);
 
         jdbcInsertRdfTypes = new SimpleJdbcInsert(this.jdbcTemplate.getJdbcTemplate())
@@ -191,7 +186,7 @@ public class DbSearchIndexImpl implements SearchIndex {
         if (containsRDFTypeField) {
             sql.append(rdfTables);
             var rdfTypeUriParamValue = "*";
-            for (Condition condition: conditions) {
+            for (final Condition condition: conditions) {
                 if (condition.getField().equals(RDF_TYPE)) {
                     rdfTypeUriParamValue = condition.getObject();
                     break;
@@ -202,7 +197,7 @@ public class DbSearchIndexImpl implements SearchIndex {
 
         if (!whereClauses.isEmpty()) {
             sql.append(" WHERE ");
-            for (var it = whereClauses.iterator(); it.hasNext(); ) {
+            for (final var it = whereClauses.iterator(); it.hasNext(); ) {
                 sql.append(it.next());
                 if (it.hasNext()) {
                     sql.append(" AND ");
@@ -219,7 +214,7 @@ public class DbSearchIndexImpl implements SearchIndex {
             @Override
             public Map<String, Object> mapRow(final ResultSet rs, final int rowNum) throws SQLException {
                 final Map<String, Object> map = new HashMap<>();
-                for (String f : fields) {
+                for (final String f : fields) {
                     final var fieldStr = f.toString();
                     var value = rs.getObject(fieldStr);
                     if (value instanceof Timestamp) {
@@ -268,7 +263,7 @@ public class DbSearchIndexImpl implements SearchIndex {
                 final var instant = InstantParser.parse(object);
                 whereClauses.add("s." + field + " " + operation.getStringValue() + " :" + paramName);
                 parameterSource.addValue(paramName, new Timestamp(instant.toEpochMilli()), Types.TIMESTAMP);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 throw new InvalidQueryException(ex.getMessage());
             }
         } else if (field.equals(CONTENT_SIZE)) {
@@ -276,7 +271,7 @@ public class DbSearchIndexImpl implements SearchIndex {
                 whereClauses.add(field + " " + operation.getStringValue() +
                         " :" + paramName);
                 parameterSource.addValue(paramName, Long.parseLong(object), Types.INTEGER);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 throw new InvalidQueryException(ex.getMessage());
             }
         } else if (field.equals(RDF_TYPE) && condition.getOperator().equals(Condition.Operator.EQ) ) {
@@ -298,19 +293,19 @@ public class DbSearchIndexImpl implements SearchIndex {
     @Transactional
     @Override
     public void addUpdateIndex(final String txId, final ResourceHeaders resourceHeaders) {
-        final var fullId = resourceHeaders.getId().getFullId();
-        final var fedoraId = FedoraId.create(fullId);
-        final var selectParams = new MapSqlParameterSource();
-        selectParams.addValue(FEDORA_ID_PARAM, fullId);
-        final var result =
-                jdbcTemplate.queryForList(SELECT_BY_FEDORA_ID,
-                        selectParams);
+        final var fedoraId = resourceHeaders.getId();
+        final var fullId = fedoraId.getFullId();
 
         if (fedoraId.isAcl() || fedoraId.isMemento()) {
             LOGGER.debug("The search index does not include acls or mementos. Ignoring resource {}", fullId);
             return;
         }
 
+        final var selectParams = new MapSqlParameterSource();
+        selectParams.addValue(FEDORA_ID_PARAM, fullId);
+        final var result =
+                jdbcTemplate.queryForList(SELECT_BY_FEDORA_ID,
+                        selectParams);
         try {
             final var fedoraResource = resourceFactory.getResource(txId, fedoraId);
             final var rdfTypes = fedoraResource.getTypes();
@@ -332,19 +327,24 @@ public class DbSearchIndexImpl implements SearchIndex {
                 resourcePrimaryKey = jdbcInsertResource.executeAndReturnKey(params).longValue();
             }
             insertRdfTypeAssociations(rdfTypeIds, resourcePrimaryKey);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RepositoryRuntimeException("Failed add/updated the search index for : " + fullId, e);
         }
     }
 
-    private void insertRdfTypeAssociations(final List<Long> rdfTypeIds, final Long resourceId) {
+    private void insertRdfTypeAssociations(final List<Long> rdfTypeIds, final Long resourceId) throws SQLException {
         //add rdf type associations
-        for (var rdfTypeId : rdfTypeIds) {
+        final String multiInsert = "INSERT INTO " + SEARCH_RESOURCE_RDF_TYPE_TABLE + " (" + RESOURCE_ID_PARAM + ", " +
+        RDF_TYPE_ID_PARAM + ") VALUES (:resource_id, :rdf_type_id)";
+        final List<MapSqlParameterSource> parameterSourcesList = new ArrayList<>();
+        for (final var rdfTypeId : rdfTypeIds) {
             final var assocParams = new MapSqlParameterSource();
             assocParams.addValue(RESOURCE_ID_PARAM, resourceId);
             assocParams.addValue(RDF_TYPE_ID_PARAM, rdfTypeId);
-            jdbcInsertRdfTypeAssociations.execute(assocParams);
+            parameterSourcesList.add(assocParams);
         }
+        final MapSqlParameterSource[] psArray = parameterSourcesList.toArray(new MapSqlParameterSource[0]);
+        jdbcTemplate.batchUpdate(multiInsert, psArray);
     }
 
     private void deleteRdfTypeAssociations(final Long resourceId) {
@@ -354,21 +354,48 @@ public class DbSearchIndexImpl implements SearchIndex {
                 deleteParams);
     }
 
-    private ArrayList<Long> findOrCreateRdfTypesInDb(final List<URI> rdfTypes) {
-        final var rdfTypeIds = new ArrayList<Long>();
-        for (var rdfTypeUri : rdfTypes) {
-            final var typeParams = new MapSqlParameterSource();
-            typeParams.addValue(RDF_TYPE_URI_PARAM, rdfTypeUri.toString());
-            final var results = jdbcTemplate.queryForList(SELECT_RDF_TYPE_ID,
-                    typeParams);
-            if (CollectionUtils.isEmpty(results)) {
-                final Number key = jdbcInsertRdfTypes.executeAndReturnKey(typeParams);
-                rdfTypeIds.add(key.longValue());
-            } else {
-                rdfTypeIds.add((long) results.get(0).get(ID_COLUMN));
-            }
-        }
+    private List<Long> findOrCreateRdfTypesInDb(final List<URI> rdfTypes) {
+        final List<String> rdfTypes_str = rdfTypes.stream().map(URI::toString).collect(Collectors.toList());
+        final var typeParams = new MapSqlParameterSource();
+        typeParams.addValue(RDF_TYPE_URI_PARAM, rdfTypes_str);
+        final RowMapper<RdfType> rdfTypeMapper = (rs, rowNum) ->
+                new RdfType(rs.getLong("id"), rs.getString("rdf_type_uri"));
+
+        final List<RdfType> results = jdbcTemplate.query(SELECT_RDF_TYPE_ID,
+                typeParams, rdfTypeMapper);
+        // List of existing type ids.
+        final var rdfTypeIds = results.stream().map(RdfType::getTypeId).collect(Collectors.toList());
+        // List of existing type uris.
+        final var rdfTypeUris = results.stream().map(RdfType::getTypeUri).collect(Collectors.toList());
+        // Type uris that don't already have a record.
+        final var missingUris = rdfTypes_str.stream().filter(t -> !rdfTypeUris.contains(t))
+                .collect(Collectors.toList());
+        missingUris.forEach(u -> {
+            final Number key = jdbcInsertRdfTypes.executeAndReturnKey(Map.of(RDF_TYPE_URI_PARAM, u));
+            rdfTypeIds.add(key.longValue());
+        });
         return rdfTypeIds;
+    }
+
+    /**
+     * Simple class to map rdf types.
+     */
+    private static class RdfType {
+        private String typeUri;
+        private Long typeId;
+
+        public RdfType(final Long id, final String uri) {
+            typeId = id;
+            typeUri = uri;
+        }
+
+        public Long getTypeId() {
+            return typeId;
+        }
+
+        public String getTypeUri() {
+            return typeUri;
+        }
     }
 
     @Override
@@ -377,7 +404,7 @@ public class DbSearchIndexImpl implements SearchIndex {
             final var params = new MapSqlParameterSource();
             params.addValue(FEDORA_ID_PARAM, fedoraId.getFullId());
             jdbcTemplate.update(DELETE_FROM_INDEX_SQL, params);
-        } catch (DataAccessException ex) {
+        } catch (final DataAccessException ex) {
             throw new RepositoryRuntimeException("Failed to delete search index entry for " + fedoraId.getFullId());
         }
     }
@@ -386,17 +413,17 @@ public class DbSearchIndexImpl implements SearchIndex {
     public void reset() {
         try (final var conn = this.dataSource.getConnection()) {
             final var statement = conn.createStatement();
-            for (var sql : toggleForeignKeyChecks(false)) {
+            for (final var sql : toggleForeignKeyChecks(false)) {
                 statement.addBatch(sql);
             }
             statement.addBatch(truncateTable(SEARCH_RESOURCE_RDF_TYPE_TABLE));
             statement.addBatch(truncateTable(SIMPLE_SEARCH_TABLE));
             statement.addBatch(truncateTable(SEARCH_RDF_TYPE_TABLE));
-            for (var sql : toggleForeignKeyChecks(true)) {
+            for (final var sql : toggleForeignKeyChecks(true)) {
                 statement.addBatch(sql);
             }
             statement.executeBatch();
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RepositoryRuntimeException("Failed to truncate search index tables", e);
         }
     }
